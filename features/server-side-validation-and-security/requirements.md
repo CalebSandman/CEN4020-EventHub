@@ -1,4 +1,4 @@
-- **server-side-validation-and-security-001** (ubiquitous): The {EventHub} ticket quantity inputs shall be validated on the server.  
+- **server-side-validation-and-security-001** (ubiquitous): The {EventHub} shall validate ticket quantity inputs on the server.  
 
 - **server-side-validation-and-security-002** (ubiquitous): The {EventHub} shall reject zero ticket quantities.  
 
@@ -8,7 +8,7 @@
 
 - **server-side-validation-and-security-005** (ubiquitous): The {EventHub} shall validate currency inputs against the supported currency list on the server.  
 
-- **server-side-validation-and-security-006** (event-driven): When data enters the {EventHub} through an external boundary, it shall validate the data before processing it, including form fields, ticket quantities, and currency codes.
+- **server-side-validation-and-security-006** (event-driven): When data enters through an external boundary, the {EventHub} shall validate the data before processing it, including form fields, ticket quantities, and currency codes.
 
 - **server-side-validation-and-security-007** (ubiquitous): The {EventHub} shall enforce role-based access control to prevent buyers from performing administrator-only actions.
 

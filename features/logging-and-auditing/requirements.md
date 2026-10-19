@@ -1,6 +1,6 @@
 - **logging-and-auditing-001** (ubiquitous): The {EventHub} shall log every purchase attempt, regardless of whether it succeeds or fails.  
 
-- **logging-and-auditing-002** (ubiquitous): The {EventHub} purchase attempt logs shall include timestamp, user, event, ticket quantity, currency, and purchase outcome (success/fail) 
+- **logging-and-auditing-002** (ubiquitous): The {EventHub} shall timestamp, user, event, ticket quantity, currency, and purchase outcome (success/fail) in purchase attempt logs.
 
 - **logging-and-auditing-003** (ubiquitous): The {EventHub} shall provide distinct error messages for different failure conditions.  
 

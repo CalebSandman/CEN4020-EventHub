@@ -18,4 +18,4 @@
 
 - **event-browsing-and-searching-010** (event-driven): When a search returns no matching events, the {EventHub} shall display the full event list after displaying the no-match message.
 
-- **event-browsing-and-searching-011** (event-driven): When the {EventHub} shall displays user-provided search text, it shall render the text as plain text rather than interpreting it as markup.
+- **event-browsing-and-searching-011** (event-driven): When displaying user-provided search text, the {EventHub} shall render the text as plain text rather than interpreting it as markup.

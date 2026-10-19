@@ -2,7 +2,7 @@
 
 - **order-history-and-confirmations-002** (ubiquitous): The {EventHub} shall allow users to reopen a past order as a confirmation-style page.  
 
-- **order-history-and-confirmations-003** (ubiquitous): The {EventHub} order confirmation page shall display event, quantity purchased, currency paid, exchange rate applied, and total paid. 
+- **order-history-and-confirmations-003** (ubiquitous): The {EventHub} shall display the order confirmation page with event, quantity purchased, currency paid, exchange rate applied, and total paid. 
 
 - **order-history-and-confirmations-004** (ubiquitous): The {EventHub} shall not allow the order confirmation page to be screenshotted 
 

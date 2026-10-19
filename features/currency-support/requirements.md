@@ -15,6 +15,6 @@
 - **currency-support-008** (ubiquitous): The {EventHub} shall use a single pricing component to calculate base prices, quantity-based totals, discount eligibility, and currency conversions.
 
 - **currency-support-009** (ubiquitous): The {EventHub} shall store exchange rates in a form that supports updates independently of software releases.
-    supercedes currency-support-007
+    supersedes: currency-support-007
 
 - **currency-support-010** (ubiquitous): The {EventHub} shall account for the decimal precision of each supported currency when representing and calculating monetary values.
