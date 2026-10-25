@@ -14,7 +14,7 @@
 {% if not event.sold_out %}
 <form class="card stack" method="get" action="{{ url_for('purchase.checkout', event_id=event.id) }}">
   <label for="quantity">Quantity (max {{ max_qty }})</label>
-  <input id="quantity" name="quantity" type="number" value="1" min="1"  step="1" required>
+  <input id="quantity" name="quantity" type="number" value="1" step="any" required>
   <label for="cur">Currency</label>
   <select id="cur" name="currency">
     {% for c in supported_currencies %}<option value="{{ c }}" {% if c == currency %}selected{% endif %}>{{ c }}</option>{% endfor %}
