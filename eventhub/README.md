@@ -45,12 +45,13 @@ and runs against a temporary database. Dependencies follow the C4 arrows (e.g. `
 See `docs/open-questions.md`: the discount %, per-order limit, session length and exchange rates are
 **placeholders**, and the "no screenshots" requirement cannot be enforced by a website.
 
-## New stuff below
-python manage.py list-events                    # shows id, tickets left / capacity
-python manage.py set-tickets 10 2               # event 10 now has 2 tickets left
-python manage.py set-tickets 10 40 50           # 40 left, capacity changed to 50
+## More commands
+    python manage.py list-events                    # shows id, tickets left / capacity
+    python manage.py set-tickets 10 2               # event 10 now has 2 tickets left
+    python manage.py set-tickets 10 40 50           # 40 left, capacity changed to 50
 
-python manage.py reset-sales   # deletes all orders and audit log, restores every event to full capacity
-                               # keeps user accounts, admins and exchange rates
-python manage.py reset-all     # deletes the whole database and rebuilds it from data/*.json
-                               # you will need to run create-admin again
+## Even more commands
+    python manage.py reset-sales    # deletes all orders and audit log, restores every event to full capacity
+                                    # keeps user accounts, admins and exchange rates
+    python manage.py reset-all      # deletes the whole database and rebuilds it from data/*.json
+                                    # you will need to run create-admin again
