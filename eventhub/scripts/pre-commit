@@ -1,4 +1,7 @@
 #!/bin/sh
 # Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+cd "$(git rev-parse --show-toplevel)/eventhub" || exit 1
+python -m ruff check . || exit 1
 python -m pytest || exit 1
+node --test tests/browser_interactions.test.cjs || exit 1
 python scripts/check_spec_alignment.py

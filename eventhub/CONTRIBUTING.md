@@ -11,6 +11,14 @@
 ## Checks
     pip install -r requirements-dev.txt
     python -m pytest
+    python -m ruff check .
+    node --test tests/browser_interactions.test.cjs
     python scripts/check_spec_alignment.py          # warns if code changed but spec/ and docs/ did not
-    cp scripts/pre-commit .git/hooks/pre-commit     # run tests + alignment before each commit
-CI (`.github/workflows/ci.yml`) re-runs everything on each push and has the final say.
+From the repository root, install the hook with `git config core.hooksPath eventhub/scripts`.
+The hook changes into the application directory before running checks. Node.js 22+ is required
+for the JavaScript interaction tests. Ruff checks import style, comparison style, syntax and
+selected correctness errors; it does not enforce whole-file formatting.
+
+CI (`../.github/workflows/ci.yml`) runs these checks on pushes and pull requests.
+The repository owner must configure branch protection to require the `checks` job before merging;
+the workflow file alone cannot prevent a failing change from being merged.

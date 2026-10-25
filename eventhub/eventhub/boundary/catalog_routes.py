@@ -64,6 +64,7 @@ def quick_buy(event_id):
     and nothing is created.
     """
     if g.user is None:
+        purchasing.record_unauthenticated_attempt(get_db(), event_id, 1, session_currency(get_db()))
         return redirect(url_for(identity.LOGIN_ENDPOINT, next=url_for("catalog.event_detail", event_id=event_id)))
     db = get_db()
     try:

@@ -5,9 +5,11 @@ Compares staged+unstaged changes (or ``base-ref...HEAD`` if given). Exit 1 only 
 """
 import subprocess
 import sys
+from pathlib import Path
 
-CODE = ("eventhub/", "data/")
-SPEC = ("spec/", "docs/")
+ROOT = Path(__file__).resolve().parents[2]
+CODE = ("eventhub/eventhub/", "eventhub/data/")
+SPEC = ("eventhub/spec/", "eventhub/docs/", "features/")
 
 
 def changed(base):
@@ -16,7 +18,7 @@ def changed(base):
     out = set()
     for cmd in cmds:
         try:
-            out.update(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout.split())
+            out.update(subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=True).stdout.splitlines())
         except (subprocess.CalledProcessError, FileNotFoundError):
             return None
     return out

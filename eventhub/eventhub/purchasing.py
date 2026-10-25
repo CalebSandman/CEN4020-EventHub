@@ -158,6 +158,10 @@ def preview_checkout(conn, user, event_id, quantity_raw, currency_raw) -> Checko
     return CheckoutPreview(event, quantity, currency, quote, eligible)
 
 
+def record_unauthenticated_attempt(conn, event_id, quantity_raw, currency_raw) -> None:
+    _log_failure(conn, None, event_id, quantity_raw, currency_raw, NOT_AUTHENTICATED)
+
+
 # --------------------------------------------------------------------------- #
 # Purchase
 # --------------------------------------------------------------------------- #
@@ -236,6 +240,8 @@ def get_order(conn, user, order_id) -> Order | None:
     try:
         order_id = int(order_id)
     except (TypeError, ValueError):
+        return None
+    if not 1 <= order_id <= 2**63 - 1:
         return None
     row = conn.execute(_ORDER_SELECT + "WHERE o.id = ? AND o.user_id = ?", (order_id, user.id)).fetchone()
     return _row_to_order(row) if row else None

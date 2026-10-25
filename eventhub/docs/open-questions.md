@@ -26,3 +26,15 @@ adding one.
 ## Decision: what counts as a "purchase attempt" (logging-001)
 Pressing **Checkout** (preview) or **Confirm purchase**, or double-clicking a card, is an attempt. Any of them being
 *refused* is audited once, with the reason code. A checkout preview that succeeds is not logged (the later confirm is).
+
+Anonymous attempts that reach these routes are logged with `NOT_AUTHENTICATED`, a null user,
+and the requested event, quantity and currency before redirecting to login. Requests rejected
+by CSRF protection are not treated as valid purchase actions.
+
+## Browser interaction policy
+
+Card navigation waits 600 ms to allow a slower double-click to buy one ticket. Browsers do not
+expose the operating system double-click interval, so this cannot support every configured
+interval. A visible instant-buy button provides a direct keyboard/touch alternative. Modified
+link clicks and keyboard activation retain native navigation. Automated JavaScript tests execute
+the handlers with a simulated DOM and clock; real browser layout and touch testing remain needed.
