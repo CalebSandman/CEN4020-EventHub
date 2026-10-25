@@ -51,6 +51,8 @@ def _event_name(conn, ref) -> str | None:
         event_id = int(str(ref).strip())
     except (TypeError, ValueError):
         return None
+    if not 1 <= event_id <= 2**63 - 1:
+        return None
     row = conn.execute("SELECT name FROM events WHERE id = ?", (event_id,)).fetchone()
     return row["name"] if row else None
 

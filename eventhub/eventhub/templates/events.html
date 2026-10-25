@@ -30,8 +30,9 @@
     <p class="price">{{ price }}</p>
     <p>{% if event.sold_out %}<span class="badge badge-out">Sold out</span>
        {% else %}<span class="badge">{{ event.tickets_available }} left</span>{% endif %}</p>
-    <form class="quick-buy-form" method="post" action="{{ url_for('catalog.quick_buy', event_id=event.id) }}" hidden>
+    <form class="quick-buy-form" method="post" action="{{ url_for('catalog.quick_buy', event_id=event.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit">Buy one ticket instantly</button>
     </form>
   </article>
 {% else %}

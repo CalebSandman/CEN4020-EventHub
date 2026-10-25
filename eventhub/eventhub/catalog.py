@@ -60,6 +60,8 @@ def get_event(conn, event_id) -> Event | None:
         event_id = int(event_id)
     except (TypeError, ValueError):
         return None
+    if not 1 <= event_id <= 2**63 - 1:
+        return None
     row = conn.execute(f"SELECT {_COLUMNS} FROM events WHERE id = ?", (event_id,)).fetchone()
     return _row_to_event(row) if row else None
 

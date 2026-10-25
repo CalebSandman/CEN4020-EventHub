@@ -11,10 +11,12 @@
   // Event cards: single click opens the detail page; double click buys one ticket.
   // A browser fires "click" twice before "dblclick", so the single-click action is
   // delayed briefly and cancelled if a double click follows.
-  var DELAY_MS = 250;
+  var DELAY_MS = 600;
   document.querySelectorAll(".event-card").forEach(function (card) {
     var timer = null;
     card.addEventListener("click", function (ev) {
+      if (ev.target.closest("button, input, select, form") || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) { return; }
+      if (ev.detail === 0 && ev.target.closest("a")) { return; }
       ev.preventDefault();
       if (timer !== null) { return; }
       timer = window.setTimeout(function () {
@@ -23,6 +25,7 @@
       }, DELAY_MS);
     });
     card.addEventListener("dblclick", function (ev) {
+      if (ev.target.closest("button, input, select, form") || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) { return; }
       ev.preventDefault();
       if (timer !== null) { window.clearTimeout(timer); timer = null; }
       var form = card.querySelector(".quick-buy-form");
@@ -31,5 +34,13 @@
         form.submit();
       }
     });
+    var purchaseForm = card.querySelector(".quick-buy-form");
+    if (purchaseForm) {
+      purchaseForm.addEventListener("submit", function (ev) {
+        if (purchaseForm.dataset.submitted) { ev.preventDefault(); return; }
+        purchaseForm.dataset.submitted = "1";
+        if (timer !== null) { window.clearTimeout(timer); timer = null; }
+      });
+    }
   });
 })();

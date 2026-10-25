@@ -44,7 +44,7 @@ def register_boundary(app) -> None:
         if request.method in _UNSAFE and current_app.config["CSRF_ENABLED"]:
             sent = request.form.get("csrf_token", "")
             expected = session.get(CSRF_KEY, "")
-            if not expected or not hmac.compare_digest(str(sent), str(expected)):
+            if not expected or not hmac.compare_digest(str(sent).encode("utf-8"), str(expected).encode("utf-8")):
                 abort(400, description="Invalid or missing CSRF token.")
 
     @app.teardown_request

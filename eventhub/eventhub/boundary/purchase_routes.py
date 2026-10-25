@@ -8,6 +8,16 @@ from .validation import clean_text
 bp = Blueprint("purchase", __name__)
 
 
+@bp.before_request
+def audit_anonymous_attempt():
+    if g.user is None and request.endpoint in {"purchase.checkout", "purchase.purchase"}:
+        source = request.args if request.method == "GET" else request.form
+        quantity, currency = _form_values(source)
+        purchasing.record_unauthenticated_attempt(
+            get_db(), request.view_args["event_id"], quantity, currency
+        )
+
+
 def _form_values(source):
     return clean_text(source.get("quantity"), 32), clean_text(source.get("currency"), 10)
 
