@@ -1,0 +1,4 @@
+#!/bin/sh
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+python -m pytest || exit 1
+python scripts/check_spec_alignment.py

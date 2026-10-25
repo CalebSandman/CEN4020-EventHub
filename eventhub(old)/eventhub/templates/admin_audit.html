@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<h1>Purchase audit log</h1>
+<form class="search" method="get" action="{{ url_for('admin.audit_log') }}">
+  <label class="sr-only" for="email">User email</label>
+  <input id="email" name="email" value="{{ email }}" placeholder="User email contains…">
+  <label class="sr-only" for="outcome">Outcome</label>
+  <select id="outcome" name="outcome">
+    <option value="">Any outcome</option>
+    <option value="success" {% if outcome == 'success' %}selected{% endif %}>Success</option>
+    <option value="fail" {% if outcome == 'fail' %}selected{% endif %}>Fail</option>
+  </select>
+  <label class="sr-only" for="reason">Reason</label>
+  <input id="reason" name="reason" value="{{ reason }}" placeholder="Reason code">
+  <button type="submit">Filter</button>
+</form>
+<div class="table-wrap"><table>
+  <thead><tr><th>Time (UTC)</th><th>User</th><th>Event</th><th>Qty</th><th>Currency</th><th>Outcome</th><th>Reason</th><th>Order</th></tr></thead>
+  <tbody>
+  {% for r in records %}
+    <tr>
+      <td>{{ r.occurred_at }}</td><td>{{ r.user_email or '(none)' }}</td><td>{{ r.event_ref }}</td>
+      <td>{{ r.quantity }}</td><td>{{ r.currency }}</td><td>{{ r.outcome }}</td>
+      <td>{{ r.reason_code or '' }}</td><td>{{ r.order_id or '' }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8">No matching audit records.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

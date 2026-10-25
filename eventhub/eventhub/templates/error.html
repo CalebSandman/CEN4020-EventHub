@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ code }} · {{ title }}</h1>
+<p>{{ text }}</p>
+<p><a href="{{ url_for('catalog.event_list') }}">Back to events</a></p>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Events{% endblock %}
+{% block content %}
+<h1>Upcoming events</h1>
+<form class="search" method="get" action="{{ url_for('catalog.event_list') }}" role="search">
+  <label for="q" class="sr-only">Search</label>
+  <input id="q" type="search" name="q" value="{{ result.query }}" maxlength="100" placeholder="Search events">
+  <label for="field" class="sr-only">Search by</label>
+  <select id="field" name="field">
+    <option value="artist" {% if field == 'artist' %}selected{% endif %}>Artist</option>
+    <option value="venue" {% if field == 'venue' %}selected{% endif %}>Venue</option>
+  </select>
+  <button type="submit">Search</button>
+</form>
+
+{% if result.no_match %}
+  <div class="flash flash-info" role="status">{{ result.message }}</div>
+{% endif %}
+
+<p class="hint">Click an event for details. Double-click to instantly buy one ticket
+  ({{ active_currency }}; login required).</p>
+
+<div class="grid">
+{% for event, price in cards %}
+  <article class="card event-card" data-detail-url="{{ url_for('catalog.event_detail', event_id=event.id) }}">
+    <h2><a href="{{ url_for('catalog.event_detail', event_id=event.id) }}">{{ event.name }}</a></h2>
+    <p class="muted">{{ event.artist }}</p>
+    <p>{{ event.venue }} · {{ event.city }}</p>
+    <p>{{ event.starts_at|dt }}</p>
+    <p class="price">{{ price }}</p>
+    <p>{% if event.sold_out %}<span class="badge badge-out">Sold out</span>
+       {% else %}<span class="badge">{{ event.tickets_available }} left</span>{% endif %}</p>
+    <form class="quick-buy-form" method="post" action="{{ url_for('catalog.quick_buy', event_id=event.id) }}" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+  </article>
+{% else %}
+  <p>No events are listed yet.</p>
+{% endfor %}
+</div>
+{% endblock %}

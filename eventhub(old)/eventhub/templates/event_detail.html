@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('catalog.event_list') }}">&larr; All events</a>
+<h1>{{ event.name }}</h1>
+<p class="muted">{{ event.artist }}</p>
+<p>{{ event.venue }} · {{ event.city }}</p>
+<p>{{ event.starts_at|dt }}</p>
+<p class="price">{{ price }} <span class="muted">per ticket</span></p>
+<p>
+  {% if event.sold_out %}<span class="badge badge-out">Sold out</span>
+  {% else %}<span class="badge">{{ event.tickets_available }} of {{ event.capacity }} tickets available</span>{% endif %}
+</p>
+{% if not event.sold_out %}
+<form class="card stack" method="get" action="{{ url_for('purchase.checkout', event_id=event.id) }}">
+  <label for="quantity">Quantity (max {{ max_qty }})</label>
+  <input id="quantity" name="quantity" type="number" value="1" min="1" max="{{ max_qty }}" step="1" required>
+  <label for="cur">Currency</label>
+  <select id="cur" name="currency">
+    {% for c in supported_currencies %}<option value="{{ c }}" {% if c == currency %}selected{% endif %}>{{ c }}</option>{% endfor %}
+  </select>
+  <button type="submit">Checkout</button>
+</form>
+{% endif %}
+{% endblock %}

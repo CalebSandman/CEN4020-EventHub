@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<h1>My orders</h1>
+{% if orders %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Order</th><th>Event</th><th>Qty</th><th>Total</th><th>Placed</th></tr></thead>
+  <tbody>
+  {% for o in orders %}
+    <tr>
+      <td><a href="{{ url_for('purchase.order_confirmation', order_id=o.id) }}">#{{ o.id }}</a></td>
+      <td>{{ o.event_name }}</td><td>{{ o.quantity }}</td><td>{{ o.total_display }}</td><td>{{ o.created_at|dt }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<p>You have not purchased any tickets yet. <a href="{{ url_for('catalog.event_list') }}">Browse events</a>.</p>
+{% endif %}
+{% endblock %}

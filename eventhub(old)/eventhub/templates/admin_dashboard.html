@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+<h1>Administration</h1>
+<ul>
+  <li><a href="{{ url_for('admin.rates') }}">Exchange rates</a></li>
+  <li><a href="{{ url_for('admin.audit_log') }}">Audit log</a></li>
+</ul>
+{% endblock %}
