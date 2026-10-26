@@ -20,9 +20,12 @@ the C4 component model in `docs/architecture/workspace.dsl`.
 
 ## Maintenance (stop the server first for the reset commands)
     python manage.py list-events                      # id, tickets left / capacity
-    python manage.py set-tickets 3 25 [CAPACITY]      # set tickets left (and optionally capacity) for event 3
+    python manage.py set-tickets [EVENT_ID] [QUANTITY] [CAPACITY]      # set tickets left (and optionally capacity)
     python manage.py reset-sales                      # delete orders + audit log, restore all tickets (keeps users, rates)
     python manage.py reset-all                        # delete the whole database, rebuild from data files
+
+## Unit tests
+    Located in `tests` folder
 
 `EVENTHUB_SECRET_KEY` signs the session cookies. Keep it secret and constant; if unset, a random key is used and
 everyone is logged out on each restart.
@@ -51,14 +54,3 @@ and runs against a temporary database. Dependencies follow the C4 arrows (e.g. `
 ## Read before relying on it
 See `docs/open-questions.md`: the discount %, per-order limit, session length and exchange rates are
 **placeholders**, and the "no screenshots" requirement cannot be enforced by a website.
-
-## More commands
-    python manage.py list-events                    # shows id, tickets left / capacity
-    python manage.py set-tickets 10 2               # event 10 now has 2 tickets left
-    python manage.py set-tickets 10 40 50           # 40 left, capacity changed to 50
-
-## Even more commands
-    python manage.py reset-sales    # deletes all orders and audit log, restores every event to full capacity
-                                    # keeps user accounts, admins and exchange rates
-    python manage.py reset-all      # deletes the whole database and rebuilds it from data/*.json
-                                    # you will need to run create-admin again
