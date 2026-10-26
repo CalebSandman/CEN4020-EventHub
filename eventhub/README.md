@@ -11,6 +11,13 @@ the C4 component model in `docs/architecture/workspace.dsl`.
     python run.py                                                # http://127.0.0.1:5000
     python -m pytest                                             # all tests
 
+## Miminum needed to run
+    pip install -r requirements-dev.txt
+    python manage.py create-admin "Ada Admin" ada@example.com
+    # optional, prompts for password
+    python run.py
+    # http://127.0.0.1:5000
+
 ## Maintenance (stop the server first for the reset commands)
     python manage.py list-events                      # id, tickets left / capacity
     python manage.py set-tickets 3 25 [CAPACITY]      # set tickets left (and optionally capacity) for event 3
