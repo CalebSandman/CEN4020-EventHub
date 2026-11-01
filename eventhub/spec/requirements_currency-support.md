@@ -1,4 +1,5 @@
 - **currency-support-001** (ubiquitous): The {EventHub} shall allow users to select a supported currency before purchasing.  
+  Call 5 clarification: the currency chosen as the account's home currency at registration is the default after login; the buyer may select another supported currency before purchase.
 
 - **currency-support-002** (ubiquitous): The {EventHub} shall display ticket prices in the user's selected currency.  
 

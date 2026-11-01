@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role          TEXT NOT NULL DEFAULT 'buyer' CHECK (role IN ('buyer', 'admin')),
+    home_currency TEXT NOT NULL DEFAULT 'USD',
     created_at    TEXT NOT NULL
 );
 
@@ -115,6 +116,9 @@ def _migrate(conn: sqlite3.Connection) -> None:
             "UPDATE audit_log SET event_name = (SELECT name FROM events "
             "WHERE CAST(events.id AS TEXT) = audit_log.event_ref)"
         )
+    user_cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)")}
+    if "home_currency" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN home_currency TEXT NOT NULL DEFAULT 'USD'")
 
 
 @contextmanager

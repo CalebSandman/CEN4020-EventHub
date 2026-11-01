@@ -11,6 +11,10 @@ Nothing below is a confirmed business rule. Each has ONE place to change it.
 | Q5 | **Discount email edge cases** | `+tag@usf.edu` eligible; `@mail.usf.edu` not; case-insensitive | `pricing.is_discount_eligible` |
 | Q6 | **Ticket hold during checkout** ("settled" in Call 4 but answer not in the written spec) | No hold. Availability is re-checked atomically at confirmation; if gone, the buyer gets the insufficient-availability error (ticket-purchasing-008) | `purchasing.purchase` |
 | Q7 | **Exchange-rate values** | Illustrative development rates | `data/exchange_rates.json` |
+| Q8 | **Repeated confirmation requests**: Should a second rapid submission be rejected or deduplicated? | Two valid requests currently create two orders if inventory allows. Characterization test: `test_duplicate_submission_current_behavior`. Recommend an idempotency token tied to the checkout action, enforced by a unique database constraint. | `boundary/purchase_routes.py`, `purchasing.py` |
+| Q9 | **Rate protection**: What requests per user/IP and time window are permitted? | No rate limiter exists. A bounded 200-request isolated test verifies invalid requests do not create orders and are individually audited. Recommend configurable rate limits and operational monitoring once a policy is approved. | `boundary/purchase_routes.py` |
+| Q10 | **Email change and discount**: What eligibility rule applies after a registered email changes? | No email-edit route exists. Eligibility is recomputed from the current database email on each purchase; an isolated test verifies the discount stops after a database email edit. | `identity.py`, `pricing.py` |
+| Q11 | **Performance acceptance**: What measured latency/throughput target and environment apply? | No quantitative target exists; test runtime and JUnit durations are observations only. | `project5-results.xml` |
 
 ## Requirement that cannot be met as written
 **order-history-and-confirmations-004** ("shall not allow the order confirmation page to be

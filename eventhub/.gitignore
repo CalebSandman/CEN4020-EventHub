@@ -3,4 +3,5 @@ __pycache__/
 instance/
 .pytest_cache/
 .venv/
+.test-deps/
 .ruff_cache/

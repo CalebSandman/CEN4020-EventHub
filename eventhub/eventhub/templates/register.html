@@ -11,6 +11,10 @@
   <input id="email" name="email" type="email" value="{{ form.get('email', '') }}" required autocomplete="email">
   <label for="password">Password (min 8 characters)</label>
   <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password">
+  <label for="home_currency">Home currency (default for ticket prices)</label>
+  <select id="home_currency" name="home_currency">
+    {% for c in supported_currencies %}<option value="{{ c }}" {% if c == form.get('home_currency', 'USD') %}selected{% endif %}>{{ c }}</option>{% endfor %}
+  </select>
   <button type="submit">Sign up</button>
   <p class="muted">Use an @usf.edu address to get the student discount automatically. No student ID needed.</p>
 </form>
