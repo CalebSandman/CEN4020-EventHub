@@ -9,11 +9,9 @@ bp = Blueprint("auth", __name__)
 
 
 def _rotate_session(user):
-    """Fresh session on login (prevents fixation) keeping the chosen currency."""
-    currency = session.get(CURRENCY_KEY)
+    """Fresh session on login (prevents fixation) using account home currency."""
     session.clear()
-    if currency:
-        session[CURRENCY_KEY] = currency
+    session[CURRENCY_KEY] = user.home_currency
     identity.start_session(session, user)
     session.permanent = True
 
@@ -28,6 +26,7 @@ def register():
                 clean_text(request.form.get("name"), 200),
                 clean_text(request.form.get("email"), 300),
                 (request.form.get("password") or "")[:500],
+                clean_text(request.form.get("home_currency", "USD"), 10),
             )
         except identity.IdentityError as exc:
             flash(exc.message, "error")

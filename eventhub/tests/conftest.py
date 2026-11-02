@@ -1,5 +1,7 @@
 """Shared fixtures. Every component test gets its own temporary database."""
 from pathlib import Path
+import threading
+import os
 
 import pytest
 
@@ -64,6 +66,36 @@ def app(db_path):
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture
+def live_server(app):
+    """Real HTTP server backed only by this test's temporary SQLite database."""
+    from werkzeug.serving import make_server
+
+    server = make_server("127.0.0.1", 0, app, threaded=True)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+    yield f"http://127.0.0.1:{server.server_port}"
+    server.shutdown()
+    worker.join(timeout=5)
+
+
+@pytest.fixture
+def browser():
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1280,900")
+    options.add_argument("--no-sandbox")
+    driver_path = os.environ.get("EVENTHUB_CHROMEDRIVER")
+    driver = webdriver.Chrome(service=Service(driver_path) if driver_path else None, options=options)
+    try:
+        yield driver
+    finally:
+        driver.quit()
 
 
 class Web:

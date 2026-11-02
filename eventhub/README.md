@@ -27,6 +27,22 @@ the C4 component model in `docs/architecture/workspace.dsl`.
 ## Unit tests
     Located in `tests` folder
 
+## Project 5 automated tests
+
+Install `requirements-dev.txt`, then run the complete suite from this `eventhub/` directory:
+
+    python -m pytest tests/ -v --junitxml=project5-results.xml
+
+The pytest command includes Selenium browser system tests, the existing Node.js interaction
+tests, isolated HTTP integration tests, component tests, and a 200-round two-buyer final-ticket
+race. Chrome or Chromium and Node.js must be
+installed; Selenium Manager obtains a matching ChromeDriver on first use. To use a local
+driver, set `EVENTHUB_CHROMEDRIVER` to its path. Set
+`EVENTHUB_CONCURRENCY_ROUNDS=5` for a quicker development run. Each test starts its own
+temporary database; the normal `instance/eventhub.db` is never reset. The JUnit XML file
+contains test counts, durations, and failure details. Requirement mapping and unresolved
+decisions are in `spec/PROJECT5_TRACEABILITY.md` and `docs/open-questions.md`.
+
 `EVENTHUB_SECRET_KEY` signs the session cookies. Keep it secret and constant; if unset, a random key is used and
 everyone is logged out on each restart.
 

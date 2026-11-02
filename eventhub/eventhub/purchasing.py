@@ -67,6 +67,7 @@ class Order:
     user_id: int
     event_id: int
     event_name: str
+    base_price_cents: int
     artist: str
     venue: str
     starts_at: str
@@ -209,7 +210,7 @@ def purchase(conn, user, event_id, quantity_raw, currency_raw, *,
 # Orders (history + confirmation)
 # --------------------------------------------------------------------------- #
 _ORDER_SELECT = (
-    "SELECT o.id, o.user_id, o.event_id, e.name AS event_name, e.artist, e.venue, e.starts_at, "
+    "SELECT o.id, o.user_id, o.event_id, e.name AS event_name, e.base_price_cents, e.artist, e.venue, e.starts_at, "
     "o.quantity, o.currency, o.exchange_rate, o.discount_percent, o.total_minor, "
     "o.currency_decimals, o.created_at FROM orders o JOIN events e ON e.id = o.event_id "
 )

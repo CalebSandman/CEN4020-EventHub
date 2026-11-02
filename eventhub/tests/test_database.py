@@ -38,3 +38,20 @@ def test_inventory_cannot_go_negative_at_db_level(conn):
 def test_role_constraint(conn):
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("INSERT INTO users (name,email,password_hash,role,created_at) VALUES ('a','a@x.io','h','root','t')")
+
+
+def test_existing_users_gain_home_currency_without_losing_data(db_path):
+    old = sqlite3.connect(db_path)
+    old.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, "
+                "password_hash TEXT, role TEXT, created_at TEXT)")
+    old.execute("INSERT INTO users VALUES (1,'Legacy','legacy@example.com','hash','buyer','t')")
+    old.commit()
+    old.close()
+    upgraded = database.connect(db_path)
+    try:
+        database.init_db(upgraded)
+        row = upgraded.execute("SELECT email, home_currency FROM users WHERE id=1").fetchone()
+        assert (row["email"], row["home_currency"]) == ("legacy@example.com", "USD")
+        database.init_db(upgraded)
+    finally:
+        upgraded.close()

@@ -53,6 +53,7 @@ class User:
     name: str
     email: str
     role: str
+    home_currency: str = "USD"
 
     @property
     def is_admin(self) -> bool:
@@ -90,21 +91,25 @@ def _validate_registration(name, email, password) -> tuple[str, str]:
     return name, email
 
 
-def _insert_user(conn, name, email, password, role) -> User:
+def _insert_user(conn, name, email, password, role, home_currency="USD") -> User:
     name, email = _validate_registration(name, email, password)
+    from . import pricing
+    home_currency = pricing.normalize_currency(home_currency)
+    if home_currency != pricing.BASE_CURRENCY and home_currency not in pricing.supported_currencies(conn):
+        raise IdentityError("CURRENCY_UNSUPPORTED", "That currency is not supported.")
     try:
         cur = conn.execute(
-            "INSERT INTO users (name, email, password_hash, role, created_at) VALUES (?,?,?,?,?)",
-            (name, email, generate_password_hash(password), role, database.to_iso(database.utcnow())),
+            "INSERT INTO users (name, email, password_hash, role, home_currency, created_at) VALUES (?,?,?,?,?,?)",
+            (name, email, generate_password_hash(password), role, home_currency, database.to_iso(database.utcnow())),
         )
     except sqlite3.IntegrityError:
         raise IdentityError("EMAIL_TAKEN", "An account with that email already exists.") from None
-    return User(cur.lastrowid, name, email, role)
+    return User(cur.lastrowid, name, email, role, home_currency)
 
 
-def register_user(conn, name, email, password) -> User:
+def register_user(conn, name, email, password, home_currency="USD") -> User:
     """Public registration. Always creates a *buyer*; there is no role argument."""
-    return _insert_user(conn, name, email, password, ROLE_BUYER)
+    return _insert_user(conn, name, email, password, ROLE_BUYER, home_currency)
 
 
 def create_admin_user(conn, name, email, password) -> User:
@@ -113,11 +118,11 @@ def create_admin_user(conn, name, email, password) -> User:
 
 
 def _row_to_user(row) -> User:
-    return User(row["id"], row["name"], row["email"], row["role"])
+    return User(row["id"], row["name"], row["email"], row["role"], row["home_currency"])
 
 
 def get_user(conn, user_id) -> User | None:
-    row = conn.execute("SELECT id, name, email, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    row = conn.execute("SELECT id, name, email, role, home_currency FROM users WHERE id = ?", (user_id,)).fetchone()
     return _row_to_user(row) if row else None
 
 
@@ -127,7 +132,7 @@ _DUMMY_HASH = generate_password_hash("not-a-real-password")
 def authenticate(conn, email, password) -> User | None:
     """Return the user for valid credentials, else None (same work either way)."""
     row = conn.execute(
-        "SELECT id, name, email, role, password_hash FROM users WHERE email = ?",
+        "SELECT id, name, email, role, home_currency, password_hash FROM users WHERE email = ?",
         (normalize_email(email),),
     ).fetchone()
     candidate = password if isinstance(password, str) else ""

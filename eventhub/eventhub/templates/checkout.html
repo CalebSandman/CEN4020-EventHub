@@ -6,12 +6,13 @@
   <dl class="summary">
     <dt>Event</dt><dd>{{ preview.event.name }} ({{ preview.event.artist }})</dd>
     <dt>Quantity</dt><dd>{{ preview.quantity }}</dd>
-    <dt>Currency</dt><dd>{{ preview.currency }}</dd>
-    <dt>Price per ticket</dt><dd>{{ preview.quote.unit_minor|money(preview.quote.currency, preview.quote.decimals) }}</dd>
+    <dt>Selected payment currency</dt><dd>{{ preview.currency }}</dd>
+    <dt>Original ticket price (USD)</dt><dd>{{ preview.event.base_price_cents|money('USD', 2) }}</dd>
+    <dt>Price per ticket in selected currency</dt><dd>{{ preview.quote.unit_minor|money(preview.quote.currency, preview.quote.decimals) }}</dd>
     {% if preview.quote.discount_applied %}
       <dt>Student discount</dt><dd>{{ preview.quote.discount_percent }}% off</dd>
     {% endif %}
-    <dt>Total</dt><dd class="price">{{ preview.quote.total_minor|money(preview.quote.currency, preview.quote.decimals) }}</dd>
+    <dt>Final total in {{ preview.currency }}</dt><dd class="price">{{ preview.quote.total_minor|money(preview.quote.currency, preview.quote.decimals) }}</dd>
   </dl>
   <p class="muted">Payment is simulated; no real charge is made. Tickets are not held until you confirm.</p>
   <form method="post" action="{{ url_for('purchase.purchase', event_id=preview.event.id) }}" class="row">

@@ -9,10 +9,11 @@
     <dt>Venue</dt><dd>{{ order.venue }}</dd>
     <dt>Date</dt><dd>{{ order.starts_at|dt }}</dd>
     <dt>Quantity purchased</dt><dd>{{ order.quantity }}</dd>
-    <dt>Currency paid</dt><dd>{{ order.currency }}</dd>
+    <dt>Original ticket price (USD)</dt><dd>{{ order.base_price_cents|money('USD', 2) }}</dd>
+    <dt>Payment currency</dt><dd>{{ order.currency }}</dd>
     <dt>Exchange rate applied</dt><dd>1 USD = {{ order.exchange_rate }} {{ order.currency }}</dd>
     {% if order.discount_percent > 0 %}<dt>Student discount</dt><dd>{{ order.discount_percent }}% off</dd>{% endif %}
-    <dt>Total paid</dt><dd class="price">{{ order.total_display }}</dd>
+    <dt>Final total (mock charge)</dt><dd class="price">{{ order.total_display }}</dd>
   </dl>
 </section>
 <p class="print-note">Printing is disabled for this page.</p>
