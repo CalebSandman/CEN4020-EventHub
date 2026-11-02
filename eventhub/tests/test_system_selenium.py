@@ -38,7 +38,9 @@ def test_complete_purchase_journey_and_persistence(browser, live_server, app):
     wait(browser, (By.LINK_TEXT, "My orders"))
     assert Select(browser.find_element(By.ID, "currency-select")).first_selected_option.text == "GBP"
     browser.find_element(By.ID, "q").send_keys("Neon")
-    browser.find_element(By.CSS_SELECTOR, "form.search button").click()
+    search_form = browser.find_element(By.CSS_SELECTOR, "form.search")
+    search_form.find_element(By.TAG_NAME, "button").click()
+    WebDriverWait(browser, 10).until(EC.staleness_of(search_form))
     wait(browser, (By.LINK_TEXT, "Neon Harbor Tour")).click()
     wait(browser, (By.ID, "quantity"))
     assert "tickets available" in browser.find_element(By.TAG_NAME, "body").text
@@ -54,6 +56,7 @@ def test_complete_purchase_journey_and_persistence(browser, live_server, app):
     wait(browser, (By.XPATH, "//h1[normalize-space()='Order confirmation']"))
     assert "Final total (mock charge)\n163.76 EUR" in browser.find_element(By.TAG_NAME, "body").text
     browser.find_element(By.PARTIAL_LINK_TEXT, "Order history").click()
+    wait(browser, (By.XPATH, "//h1[normalize-space()='My orders']"))
     assert "Neon Harbor Tour" in browser.find_element(By.TAG_NAME, "body").text
     conn = database.connect(app.config["DATABASE_PATH"])
     try:
