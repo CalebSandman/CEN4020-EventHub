@@ -110,8 +110,9 @@ updated to explicitly verify the new `$` and `€` symbols, while retaining its
 exact stored-order assertion. The restricted test environment initially blocked
 Selenium Manager's ChromeDriver lookup; the browser tests and full suite were
 then run outside that restriction with approval. Existing untracked PDF and ZIP
-files in the working tree were left untouched. Work is on branch `project6` and
-was not committed or pushed.
+files in the working tree were left untouched. The Part 6 work was committed on
+`project6` and merged into `main` in both the CalebSandman and class `nerds`
+repositories.
 
 ## F. Testing and verification
 
@@ -125,6 +126,8 @@ earlier environment-related failed attempts are in `part6-test-results.md`.
 After the PDF requirements audit added formal traceability and an alert warning,
 the full suite was rerun with the cached ChromeDriver: **246 passed, 0 failed,
 0 skipped** in 31.51 seconds. Ruff and the strict spec-alignment check passed.
+After merging Part 6 into `main`, the complete suite was run again with the
+cached ChromeDriver: **246 passed, 0 failed, 0 skipped** in 32.24 seconds.
 
 ## G. Remaining limitations
 

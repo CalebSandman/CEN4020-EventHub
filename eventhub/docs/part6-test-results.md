@@ -1,6 +1,7 @@
 # Part 6 test results
 
-Working directory: `eventhub/` on branch `project6`. The repository already
+Working directory: `eventhub/`. The original Part 6 runs were on `project6`;
+the complete suite was also rerun after merging into `main`. The repository already
 contains local `.test-deps`, so commands set `PYTHONPATH` to use its pytest and
 Selenium packages. Tests use temporary databases, not `instance/eventhub.db`.
 
@@ -12,6 +13,7 @@ Selenium packages. Tests use temporary databases, not `instance/eventhub.db`.
 | `$env:PYTHONPATH='.test-deps'; python -m ruff check eventhub tests/test_part6_maintenance.py manage.py` | All checks passed |
 | `$env:PYTHONPATH='.test-deps'; $env:EVENTHUB_CHROMEDRIVER='C:/Users/cam/.cache/selenium/chromedriver/win64/156.0.8078.80/chromedriver.exe'; python -m pytest tests -q -o addopts=` (after PDF audit) | 246 passed, 0 failed, 0 skipped in 31.51s |
 | `python scripts/check_spec_alignment.py --strict` (after PDF audit) | spec-alignment: ok |
+| `$env:PYTHONPATH='.test-deps'; $env:EVENTHUB_CHROMEDRIVER='C:/Users/cam/.cache/selenium/chromedriver/win64/156.0.8078.80/chromedriver.exe'; python -m pytest tests -q -o addopts= -p no:cacheprovider` (merged `main`) | 246 passed, 0 failed, 0 skipped in 32.24s |
 
 Representative final output:
 
