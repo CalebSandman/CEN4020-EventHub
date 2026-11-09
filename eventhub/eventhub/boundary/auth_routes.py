@@ -2,7 +2,7 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
 
 from .. import identity
-from .context import CSRF_KEY, CURRENCY_KEY, get_db
+from .context import CSRF_KEY, CURRENCY_KEY, LOCALE_KEY, get_db
 from .validation import clean_text
 
 bp = Blueprint("auth", __name__)
@@ -10,8 +10,11 @@ bp = Blueprint("auth", __name__)
 
 def _rotate_session(user):
     """Fresh session on login (prevents fixation) using account home currency."""
+    locale = session.get(LOCALE_KEY)
     session.clear()
     session[CURRENCY_KEY] = user.home_currency
+    if locale:
+        session[LOCALE_KEY] = locale
     identity.start_session(session, user)
     session.permanent = True
 

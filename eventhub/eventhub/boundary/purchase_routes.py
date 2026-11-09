@@ -1,5 +1,5 @@
 """Checkout, mock payment, order history and confirmation."""
-from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
 
 from .. import identity, purchasing
 from .context import get_db
@@ -34,6 +34,10 @@ def checkout(event_id):
             abort(404)
         flash(exc.message, "error")
         return redirect(url_for("catalog.event_detail", event_id=event_id))
+    session["checkout_quote"] = {
+        "event_id": event_id, "quantity": preview.quantity,
+        "currency": preview.currency, "total_minor": preview.quote.total_minor,
+    }
     return render_template("checkout.html", preview=preview)
 
 
@@ -41,10 +45,20 @@ def checkout(event_id):
 @identity.login_required
 def purchase(event_id):
     quantity, currency = _form_values(request.form)
+    saved = session.pop("checkout_quote", None)
+    expected = None
+    if (isinstance(saved, dict) and saved.get("event_id") == event_id
+            and str(saved.get("quantity")) == quantity
+            and saved.get("currency") == currency):
+        expected = saved.get("total_minor")
     try:
-        order = purchasing.purchase(get_db(), g.user, event_id, quantity, currency)
+        order = purchasing.purchase(get_db(), g.user, event_id, quantity, currency,
+                                    expected_minor=expected)
     except purchasing.PurchaseError as exc:
         flash(exc.message, "error")
+        if exc.code == purchasing.PRICE_CHANGED:
+            return redirect(url_for("purchase.checkout", event_id=event_id,
+                                    quantity=quantity, currency=currency))
         return redirect(url_for("catalog.event_detail", event_id=event_id))
     flash("Purchase complete. This confirmation is shown on screen only; no email is sent.", "success")
     return redirect(url_for("purchase.order_confirmation", order_id=order.id))

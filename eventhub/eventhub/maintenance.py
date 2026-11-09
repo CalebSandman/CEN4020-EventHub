@@ -39,6 +39,7 @@ def reset_sales(conn) -> dict:
     Users, administrators and exchange rates are kept.
     """
     with database.transaction(conn):
+        conn.execute("DELETE FROM purchase_alerts")
         orders = conn.execute("DELETE FROM orders").rowcount
         audits = conn.execute("DELETE FROM audit_log").rowcount
         conn.execute("UPDATE events SET tickets_available = capacity")

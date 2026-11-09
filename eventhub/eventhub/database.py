@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS orders (
     discount_percent  TEXT NOT NULL,
     total_minor       INTEGER NOT NULL CHECK (total_minor >= 0),
     currency_decimals INTEGER NOT NULL,
+    base_price_cents INTEGER,
     created_at        TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id, id DESC);
@@ -75,6 +76,25 @@ CREATE TABLE IF NOT EXISTS audit_log (
     order_id    INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log(id DESC);
+
+CREATE TABLE IF NOT EXISTS rate_audit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_at TEXT NOT NULL,
+    actor_id INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    old_rate TEXT NOT NULL,
+    new_rate TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS purchase_alerts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_at TEXT NOT NULL,
+    order_id INTEGER NOT NULL UNIQUE REFERENCES orders(id),
+    expected_minor INTEGER NOT NULL,
+    actual_minor INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    acknowledged_at TEXT
+);
 """
 
 
@@ -119,6 +139,11 @@ def _migrate(conn: sqlite3.Connection) -> None:
     user_cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)")}
     if "home_currency" not in user_cols:
         conn.execute("ALTER TABLE users ADD COLUMN home_currency TEXT NOT NULL DEFAULT 'USD'")
+    order_cols = {r["name"] for r in conn.execute("PRAGMA table_info(orders)")}
+    if "base_price_cents" not in order_cols:
+        conn.execute("ALTER TABLE orders ADD COLUMN base_price_cents INTEGER")
+        conn.execute("UPDATE orders SET base_price_cents = "
+                     "(SELECT base_price_cents FROM events WHERE events.id = orders.event_id)")
 
 
 @contextmanager

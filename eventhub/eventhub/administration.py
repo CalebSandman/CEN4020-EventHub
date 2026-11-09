@@ -65,12 +65,28 @@ def update_rate(conn, actor, currency, new_rate_raw, now: datetime | None = None
     if code == pricing.BASE_CURRENCY:
         raise AdminError("BASE_CURRENCY", "The USD rate is fixed at 1 and cannot be changed.")
     rate = parse_rate(new_rate_raw)
-    cur = conn.execute(
-        "UPDATE exchange_rates SET rate = ?, updated_at = ?, updated_by = ? WHERE currency = ?",
-        (format(rate, "f"), database.to_iso(now or database.utcnow()), actor.id, code),
-    )
-    if cur.rowcount != 1:
-        raise AdminError("UNSUPPORTED_CURRENCY", "That currency is not supported.")
+    stamp = database.to_iso(now or database.utcnow())
+    with database.transaction(conn):
+        old = conn.execute("SELECT rate FROM exchange_rates WHERE currency = ?", (code,)).fetchone()
+        if old is None:
+            raise AdminError("UNSUPPORTED_CURRENCY", "That currency is not supported.")
+        conn.execute(
+            "UPDATE exchange_rates SET rate = ?, updated_at = ?, updated_by = ? WHERE currency = ?",
+            (format(rate, "f"), stamp, actor.id, code),
+        )
+        conn.execute(
+            "INSERT INTO rate_audit (occurred_at, actor_id, currency, old_rate, new_rate) "
+            "VALUES (?,?,?,?,?)", (stamp, actor.id, code, old["rate"], format(rate, "f")),
+        )
+
+
+def review_alerts(conn, actor):
+    _require_admin(actor)
+    return conn.execute(
+        "SELECT a.*, e.name AS event_name FROM purchase_alerts a "
+        "JOIN orders o ON o.id = a.order_id JOIN events e ON e.id = o.event_id "
+        "ORDER BY a.id DESC LIMIT 100"
+    ).fetchall()
 
 
 def review_audit(conn, actor, *, outcome=None, user_email=None, reason_code=None, limit=100):

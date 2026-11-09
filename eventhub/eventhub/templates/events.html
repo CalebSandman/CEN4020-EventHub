@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Events{% endblock %}
+{% block title %}{{ tr('Events') }}{% endblock %}
 {% block content %}
-<h1>Upcoming events</h1>
+<h1>{{ tr('Upcoming events') }}</h1>
 <form class="search" method="get" action="{{ url_for('catalog.event_list') }}" role="search">
-  <label for="q" class="sr-only">Search</label>
-  <input id="q" type="search" name="q" value="{{ result.query }}" maxlength="100" placeholder="Search events">
-  <label for="field" class="sr-only">Search by</label>
+  <label for="q" class="sr-only">{{ tr('Search') }}</label>
+  <input id="q" type="search" name="q" value="{{ result.query }}" maxlength="100" placeholder="{{ tr('Search events') }}">
+  <label for="field" class="sr-only">{{ tr('Search by') }}</label>
   <select id="field" name="field">
-    <option value="artist" {% if field == 'artist' %}selected{% endif %}>Artist</option>
-    <option value="venue" {% if field == 'venue' %}selected{% endif %}>Venue</option>
+    <option value="artist" {% if field == 'artist' %}selected{% endif %}>{{ tr('Artist') }}</option>
+    <option value="venue" {% if field == 'venue' %}selected{% endif %}>{{ tr('Venue') }}</option>
   </select>
-  <button type="submit">Search</button>
+  <button type="submit">{{ tr('Search') }}</button>
 </form>
 
 {% if result.no_match %}
-  <div class="flash flash-info" role="status">{{ result.message }}</div>
+  <div class="flash flash-info" role="status">{{ tr(result.message) }}</div>
 {% endif %}
 
-<p class="hint">Click an event for details. Double-click to instantly buy one ticket
-  ({{ active_currency }}; login required).</p>
+<p class="hint">{{ tr('Click an event for details. Double-click to instantly buy one ticket') }}
+  ({{ active_currency }}; {{ tr('login required') }}).</p>
 
 <div class="grid">
 {% for event, price in cards %}
@@ -28,15 +28,15 @@
     <p>{{ event.venue }} · {{ event.city }}</p>
     <p>{{ event.starts_at|dt }}</p>
     <p class="price">{{ price }}</p>
-    <p>{% if event.sold_out %}<span class="badge badge-out">Sold out</span>
-       {% else %}<span class="badge">{{ event.tickets_available }} left</span>{% endif %}</p>
+    <p>{% if event.sold_out %}<span class="badge badge-out">{{ tr('Sold out') }}</span>
+       {% else %}<span class="badge">{{ event.tickets_available }} {{ tr('left') }}</span>{% endif %}</p>
     <form class="quick-buy-form" method="post" action="{{ url_for('catalog.quick_buy', event_id=event.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit">Buy one ticket instantly</button>
+      <button type="submit">{{ tr('Buy one ticket instantly') }}</button>
     </form>
   </article>
 {% else %}
-  <p>No events are listed yet.</p>
+  <p>{{ tr('No events are listed yet.') }}</p>
 {% endfor %}
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 """Administrator-only routes. Thin adapter over ``administration``."""
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
 
-from .. import administration, audit, identity
+from .. import administration, alerts, audit, identity
 from .context import get_db
 from .validation import clean_text
 
@@ -19,7 +19,14 @@ def _admin_only():
 
 @bp.get("/")
 def dashboard():
-    return render_template("admin_dashboard.html")
+    alerts.scan_orders(get_db())
+    return render_template("admin_dashboard.html", alert_count=len(administration.review_alerts(get_db(), g.user)))
+
+
+@bp.get("/alerts")
+def purchase_alerts():
+    alerts.scan_orders(get_db())
+    return render_template("admin_alerts.html", alerts=administration.review_alerts(get_db(), g.user))
 
 
 @bp.route("/rates", methods=["GET", "POST"])

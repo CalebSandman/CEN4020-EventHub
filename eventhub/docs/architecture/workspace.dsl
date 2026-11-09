@@ -13,8 +13,10 @@ workspace "EventHub | Part 3 C4 Architecture" "Revised design after Call 3" {
                 inventory = component "Inventory Repository" "Atomic guarded inventory decrement in the purchase database transaction." "SQL repository"
                 audit = component "Audit Trail" "Captures success and failure with timestamp, user, event, quantity, currency and outcome." "Python service"
                 administration = component "Administration" "Authorized exchange-rate editing and audit-log viewing, inaccessible from buyer flows." "Flask blueprint + service"
+                localization = component "Localization" "English and Spanish translations plus locale-aware date and currency display; no monetary arithmetic." "Python resources and filters"
+                alerts = component "Purchase Alerts" "Reconciles historical order totals and records outliers for administrator review." "Python service"
             }
-            database = container "EventHub Database" "Users/roles, events, inventory, orders, stored exchange rates, and audit attempts; transactional updates." "SQLite (proposed)" "Database"
+            database = container "EventHub Database" "Users/roles, events, inventory, orders, rates, rate-change audit, purchase audit and alerts." "SQLite" "Database"
             eventSeed = container "Event Setup Data" "Initial event catalog loaded on application setup; not an external provider." "Data file"
         }
 
@@ -26,11 +28,14 @@ workspace "EventHub | Part 3 C4 Architecture" "Revised design after Call 3" {
         boundary -> catalog "Browse / search; escape user input"
         boundary -> purchasing "Validated checkout and order requests"
         boundary -> administration "Admin-only routes"
+        boundary -> localization "Translates labels and formats dates and money"
+        boundary -> alerts "Scans orders when an administrator opens alerts"
         purchasing -> identity "Requires authenticated buyer before accessing orders"
         purchasing -> catalog "Checks event and current availability"
         purchasing -> pricing "Computes one authoritative total"
         purchasing -> inventory "Atomic availability check + decrement"
         purchasing -> audit "Records outcome on all attempt paths"
+        purchasing -> alerts "Checks paid total against the quote"
         inventory -> database "Conditional decrement; same transaction as successful order" "SQL"
         purchasing -> database "Creates order and reads buyer history" "SQL"
         identity -> database "Users, role assignments, sessions as applicable" "SQL"
@@ -41,6 +46,8 @@ workspace "EventHub | Part 3 C4 Architecture" "Revised design after Call 3" {
         administration -> identity "Verifies admin role on every request"
         administration -> database "Edits rates and queries audit logs" "SQL"
         administration -> audit "Reads audit history via audit interface"
+        alerts -> database "Reads order snapshots and records suspicious totals" "SQL"
+        administration -> alerts "Reviews suspicious order totals"
     }
     views {
         systemContext updated "context-final" {

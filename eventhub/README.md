@@ -18,11 +18,22 @@ the C4 component model in `docs/architecture/workspace.dsl`.
     python run.py
     # http://127.0.0.1:5000
 
-## Maintenance (stop the server first for the reset commands)
+## Maintenance (stop the server before reset commands)
     python manage.py list-events                      # id, tickets left / capacity
     python manage.py set-tickets [EVENT_ID] [QUANTITY] [CAPACITY]      # set tickets left (and optionally capacity)
     python manage.py reset-sales                      # delete orders + audit log, restore all tickets (keeps users, rates)
     python manage.py reset-all                        # delete the whole database, rebuild from data files
+    python manage.py scan-alerts                     # reconcile stored purchases; exit 1 if alerts need review
+
+Administrators can review suspicious totals at `/admin/alerts`. Run `scan-alerts`
+periodically with an external scheduler and route its nonzero exit status to the
+operations team. The scan uses each order's stored rate, discount, quantity,
+currency precision, and base price; it does not contact a payment service.
+Buyers can choose English or Spanish in the header. Locale changes affect display
+only and persist in the session through login.
+
+Backup and restore guidance is in `docs/part6-backup-recovery.md`. No production
+backup schedule or owner is configured in this repository.
 
 ## Unit tests
     Located in `tests` folder

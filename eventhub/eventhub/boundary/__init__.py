@@ -5,26 +5,23 @@ All request-level concerns live here; business rules live in the components.
 from __future__ import annotations
 
 import hmac
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import abort, current_app, g, render_template, request, session
 
-from .. import identity, pricing
+from .. import identity, localization, pricing
 from . import admin_routes, auth_routes, catalog_routes, purchase_routes
-from .context import CSRF_KEY, csrf_token, get_db, session_currency
+from .context import CSRF_KEY, csrf_token, get_db, session_currency, session_locale
 
 _UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
 
 
 def _format_dt(value: str) -> str:
-    try:
-        return datetime.fromisoformat(value).strftime("%a, %b %d %Y, %I:%M %p").replace(" 0", " ")
-    except (TypeError, ValueError):
-        return str(value)
+    return localization.format_date(value, session_locale())
 
 
 def _money(minor, currency, decimals) -> str:
-    return pricing.format_money(minor, currency, decimals)
+    return localization.format_money(minor, currency, decimals, session_locale())
 
 
 def register_boundary(app) -> None:
@@ -61,6 +58,10 @@ def register_boundary(app) -> None:
             "csrf_token": csrf_token,
             "supported_currencies": pricing.supported_currencies(db),
             "active_currency": session_currency(db),
+            "active_locale": session_locale(),
+            "locales": localization.LOCALES,
+            "tr": lambda message: localization.translate(message, session_locale()),
+            "currency_decimals": lambda code: pricing.load_currencies(db)[code].decimals,
         }
 
     @app.after_request
