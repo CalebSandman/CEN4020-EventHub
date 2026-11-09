@@ -50,11 +50,11 @@ def test_complete_purchase_journey_and_persistence(browser, live_server, app):
     browser.find_element(By.XPATH, "//button[normalize-space()='Checkout']").click()
     wait(browser, (By.XPATH, "//h1[normalize-space()='Checkout']"))
     assert "Selected payment currency\nEUR" in browser.find_element(By.TAG_NAME, "body").text
-    assert "Original ticket price (USD)\n89.00 USD" in browser.find_element(By.TAG_NAME, "body").text
-    assert "163.76 EUR" in browser.find_element(By.TAG_NAME, "body").text
+    assert "Original ticket price (USD)\n$89.00 USD" in browser.find_element(By.TAG_NAME, "body").text
+    assert "€163.76 EUR" in browser.find_element(By.TAG_NAME, "body").text
     browser.find_element(By.XPATH, "//button[contains(., 'Confirm purchase')]").click()
     wait(browser, (By.XPATH, "//h1[normalize-space()='Order confirmation']"))
-    assert "Final total (mock charge)\n163.76 EUR" in browser.find_element(By.TAG_NAME, "body").text
+    assert "Final total (mock charge)\n€163.76 EUR" in browser.find_element(By.TAG_NAME, "body").text
     browser.find_element(By.PARTIAL_LINK_TEXT, "Order history").click()
     wait(browser, (By.XPATH, "//h1[normalize-space()='My orders']"))
     assert "Neon Harbor Tour" in browser.find_element(By.TAG_NAME, "body").text

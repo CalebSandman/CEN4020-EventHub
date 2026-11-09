@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('Purchase alerts') }}{% endblock %}
+{% block content %}
+<h1>{{ tr('Purchase alerts') }}</h1>
+<p>{{ tr('Review transactions outside the expected price range.') }}</p>
+<table><thead><tr><th>{{ tr('Order') }}</th><th>{{ tr('Event') }}</th><th>{{ tr('Expected') }}</th><th>{{ tr('Actual') }}</th></tr></thead><tbody>
+{% for a in alerts %}<tr><td>#{{ a.order_id }}</td><td>{{ a.event_name }}</td><td>{{ a.expected_minor|money(a.currency, currency_decimals(a.currency)) }}</td><td>{{ a.actual_minor|money(a.currency, currency_decimals(a.currency)) }}</td></tr>
+{% else %}<tr><td colspan="4">{{ tr('No purchase alerts.') }}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

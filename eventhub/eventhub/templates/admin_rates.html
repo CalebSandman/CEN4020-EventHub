@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Exchange rates{% endblock %}
+{% block title %}{{ tr('Exchange rates') }}{% endblock %}
 {% block content %}
-<h1>Exchange rates</h1>
-<p class="muted">Units of currency per 1 USD. Changes apply to new quotes immediately; existing orders keep the rate they were paid at.</p>
+<h1>{{ tr('Exchange rates') }}</h1>
+<p class="muted">{{ tr('Units of currency per 1 USD. Changes apply to new quotes immediately; existing orders keep the rate they were paid at.') }}</p>
 <div class="table-wrap"><table>
-  <thead><tr><th>Currency</th><th>Rate</th><th>Decimals</th><th>Updated</th><th>Change</th></tr></thead>
+  <thead><tr><th>{{ tr('Currency') }}</th><th>{{ tr('Rate') }}</th><th>{{ tr('Decimals') }}</th><th>{{ tr('Updated') }}</th><th>{{ tr('Change') }}</th></tr></thead>
   <tbody>
   {% for r in rates %}
     <tr>
@@ -14,11 +14,11 @@
         <form method="post" action="{{ url_for('admin.rates') }}" class="row">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="currency" value="{{ r.currency }}">
-          <label class="sr-only" for="rate-{{ r.currency }}">New rate for {{ r.currency }}</label>
+          <label class="sr-only" for="rate-{{ r.currency }}">{{ tr('New rate for') }} {{ r.currency }}</label>
           <input id="rate-{{ r.currency }}" name="rate" inputmode="decimal" required>
-          <button type="submit">Update</button>
+          <button type="submit">{{ tr('Update') }}</button>
         </form>
-        {% else %}fixed{% endif %}
+        {% else %}{{ tr('fixed') }}{% endif %}
       </td>
     </tr>
   {% endfor %}

@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 
-from . import audit, catalog, database, inventory, pricing
+from . import alerts, audit, catalog, database, inventory, pricing
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ SOLD_OUT = "SOLD_OUT"
 INSUFFICIENT_AVAILABILITY = "INSUFFICIENT_AVAILABILITY"
 UNSUPPORTED_CURRENCY = "UNSUPPORTED_CURRENCY"
 PAYMENT_DECLINED = "PAYMENT_DECLINED"
+PRICE_CHANGED = "PRICE_CHANGED"
 INTERNAL_ERROR = "INTERNAL_ERROR"
 
 _INT_RE = re.compile(r"[+-]?\d{1,18}")
@@ -167,7 +168,8 @@ def record_unauthenticated_attempt(conn, event_id, quantity_raw, currency_raw) -
 # Purchase
 # --------------------------------------------------------------------------- #
 def purchase(conn, user, event_id, quantity_raw, currency_raw, *,
-             payment=mock_payment, now: datetime | None = None) -> Order:
+             payment=mock_payment, now: datetime | None = None,
+             expected_minor: int | None = None) -> Order:
     """Complete a purchase or raise :class:`PurchaseError`. Always audited."""
     def log_failure(code: str) -> None:
         _log_failure(conn, user, event_id, quantity_raw, currency_raw, code, now)
@@ -175,6 +177,12 @@ def purchase(conn, user, event_id, quantity_raw, currency_raw, *,
     try:
         event, quantity, currency, quote, _ = _prepare(conn, user, event_id, quantity_raw, currency_raw)
         with database.transaction(conn):
+            # Lock before the final rate read: a rate edit between checkout and
+            # confirmation must not silently alter the displayed charge.
+            quote = pricing.calculate_price(conn, event.base_price_cents, quantity,
+                                            pricing.is_discount_eligible(user.email), currency)
+            if expected_minor is not None and quote.total_minor != expected_minor:
+                raise PurchaseError(PRICE_CHANGED, "The price changed. Please review the new total.")
             if not inventory.reserve(conn, event.id, quantity):
                 left = inventory.available(conn, event.id) or 0
                 if left == 0:
@@ -188,14 +196,17 @@ def purchase(conn, user, event_id, quantity_raw, currency_raw, *,
             stamp = database.to_iso(now or database.utcnow())
             cur = conn.execute(
                 "INSERT INTO orders (user_id, event_id, quantity, currency, exchange_rate, "
-                "discount_percent, total_minor, currency_decimals, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+                "discount_percent, total_minor, currency_decimals, base_price_cents, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (user.id, event.id, quantity, currency, format(quote.exchange_rate, "f"),
-                 format(quote.discount_percent, "f"), quote.total_minor, quote.decimals, stamp),
+                 format(quote.discount_percent, "f"), quote.total_minor, quote.decimals,
+                 event.base_price_cents, stamp),
             )
             order_id = cur.lastrowid
             audit.record(conn, user_id=user.id, user_email=user.email, event_ref=event_id,
                          quantity=quantity, currency=currency, outcome=audit.OUTCOME_SUCCESS,
                          order_id=order_id, now=now)
+            alerts.record_if_suspicious(conn, order_id, quote.total_minor,
+                                        quote.total_minor, currency)
     except PurchaseError as exc:
         log_failure(exc.code)
         raise
@@ -210,7 +221,9 @@ def purchase(conn, user, event_id, quantity_raw, currency_raw, *,
 # Orders (history + confirmation)
 # --------------------------------------------------------------------------- #
 _ORDER_SELECT = (
-    "SELECT o.id, o.user_id, o.event_id, e.name AS event_name, e.base_price_cents, e.artist, e.venue, e.starts_at, "
+    "SELECT o.id, o.user_id, o.event_id, e.name AS event_name, "
+    "COALESCE(o.base_price_cents, e.base_price_cents) AS base_price_cents, "
+    "e.artist, e.venue, e.starts_at, "
     "o.quantity, o.currency, o.exchange_rate, o.discount_percent, o.total_minor, "
     "o.currency_decimals, o.created_at FROM orders o JOIN events e ON e.id = o.event_id "
 )

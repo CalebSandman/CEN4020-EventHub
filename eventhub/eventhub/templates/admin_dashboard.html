@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Administration{% endblock %}
+{% block title %}{{ tr('Administration') }}{% endblock %}
 {% block content %}
-<h1>Administration</h1>
+<h1>{{ tr('Administration') }}</h1>
 <ul>
-  <li><a href="{{ url_for('admin.rates') }}">Exchange rates</a></li>
-  <li><a href="{{ url_for('admin.audit_log') }}">Audit log</a></li>
+  <li><a href="{{ url_for('admin.rates') }}">{{ tr('Exchange rates') }}</a></li>
+  <li><a href="{{ url_for('admin.audit_log') }}">{{ tr('Audit log') }}</a></li>
+  <li><a href="{{ url_for('admin.purchase_alerts') }}">{{ tr('Purchase alerts') }} ({{ alert_count }})</a></li>
 </ul>
 {% endblock %}

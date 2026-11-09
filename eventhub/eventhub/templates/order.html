@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Order #{{ order.id }}{% endblock %}
 {% block content %}
-<h1>Order confirmation</h1>
+<h1>{{ tr('Order confirmation') }}</h1>
 <section class="card confirmation" data-sensitive>
-  <p class="muted">Order #{{ order.id }} · {{ order.created_at|dt }}</p>
+  <p class="muted">{{ tr('Order') }} #{{ order.id }} · {{ order.created_at|dt }}</p>
   <dl class="summary">
-    <dt>Event</dt><dd>{{ order.event_name }} ({{ order.artist }})</dd>
-    <dt>Venue</dt><dd>{{ order.venue }}</dd>
-    <dt>Date</dt><dd>{{ order.starts_at|dt }}</dd>
-    <dt>Quantity purchased</dt><dd>{{ order.quantity }}</dd>
-    <dt>Original ticket price (USD)</dt><dd>{{ order.base_price_cents|money('USD', 2) }}</dd>
-    <dt>Payment currency</dt><dd>{{ order.currency }}</dd>
-    <dt>Exchange rate applied</dt><dd>1 USD = {{ order.exchange_rate }} {{ order.currency }}</dd>
-    {% if order.discount_percent > 0 %}<dt>Student discount</dt><dd>{{ order.discount_percent }}% off</dd>{% endif %}
-    <dt>Final total (mock charge)</dt><dd class="price">{{ order.total_display }}</dd>
+    <dt>{{ tr('Event') }}</dt><dd>{{ order.event_name }} ({{ order.artist }})</dd>
+    <dt>{{ tr('Venue') }}</dt><dd>{{ order.venue }}</dd>
+    <dt>{{ tr('Date') }}</dt><dd>{{ order.starts_at|dt }}</dd>
+    <dt>{{ tr('Quantity purchased') }}</dt><dd>{{ order.quantity }}</dd>
+    <dt>{{ tr('Original ticket price (USD)') }}</dt><dd>{{ order.base_price_cents|money('USD', 2) }}</dd>
+    <dt>{{ tr('Payment currency') }}</dt><dd>{{ order.currency }}</dd>
+    <dt>{{ tr('Exchange rate applied') }}</dt><dd>1 USD = {{ order.exchange_rate }} {{ order.currency }}</dd>
+    {% if order.discount_percent > 0 %}<dt>{{ tr('Student discount') }}</dt><dd>{{ order.discount_percent }}% {{ tr('off') }}</dd>{% endif %}
+    <dt>{{ tr('Final total (mock charge)') }}</dt><dd class="price">{{ order.total_minor|money(order.currency, order.currency_decimals) }}</dd>
   </dl>
 </section>
-<p class="print-note">Printing is disabled for this page.</p>
-<a href="{{ url_for('purchase.order_history') }}">&larr; Order history</a>
+<p class="print-note">{{ tr('Printing is disabled for this page.') }}</p>
+<a href="{{ url_for('purchase.order_history') }}">&larr; {{ tr('Order history') }}</a>
 {% endblock %}

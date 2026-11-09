@@ -1,8 +1,8 @@
 """Browsing, searching, event detail, currency selection, double-click buy."""
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
 
-from .. import catalog, identity, pricing, purchasing
-from .context import CURRENCY_KEY, get_db, session_currency
+from .. import catalog, identity, localization, pricing, purchasing
+from .context import CURRENCY_KEY, LOCALE_KEY, get_db, session_currency, session_locale
 from .validation import clean_text
 
 bp = Blueprint("catalog", __name__)
@@ -10,7 +10,17 @@ bp = Blueprint("catalog", __name__)
 
 def price_label(conn, event, currency: str) -> str:
     quote = pricing.calculate_price(conn, event.base_price_cents, 1, False, currency)
-    return pricing.format_money(quote.unit_minor, quote.currency, quote.decimals)
+    return localization.format_money(quote.unit_minor, quote.currency, quote.decimals, session_locale())
+
+
+@bp.post("/locale")
+def set_locale():
+    locale = clean_text(request.form.get("locale"), 20)
+    if locale in localization.LOCALES:
+        session[LOCALE_KEY] = locale
+    else:
+        flash("That language is not supported.", "error")
+    return redirect(identity.safe_next_url(request.form.get("next"), url_for("catalog.event_list")))
 
 
 @bp.get("/")

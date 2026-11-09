@@ -13,7 +13,7 @@ import getpass
 import os
 import sys
 
-from eventhub import database, identity, maintenance
+from eventhub import alerts, database, identity, maintenance
 
 # The CLI never serves requests, so it does not need a real session key.
 os.environ.setdefault("EVENTHUB_SECRET_KEY", "cli-only-not-used-for-sessions")
@@ -56,6 +56,11 @@ def main(argv) -> int:
         elif cmd == "list-events":
             for e in maintenance.list_events(conn):
                 print(f"{e['id']:>3}  {e['tickets_available']:>4} / {e['capacity']:<4}  {e['name']}")
+        elif cmd == "scan-alerts":
+            found = alerts.scan_orders(conn)
+            count = conn.execute("SELECT COUNT(*) FROM purchase_alerts WHERE acknowledged_at IS NULL").fetchone()[0]
+            print(f"New alerts: {found}; open alerts: {count}. Review /admin/alerts.")
+            return 1 if count else 0
         elif cmd == "set-tickets" and len(args) in (3, 4):
             maintenance.set_tickets(conn, int(args[1]), int(args[2]),
                                     int(args[3]) if len(args) == 4 else None)

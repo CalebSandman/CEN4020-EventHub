@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Log in{% endblock %}
+{% block title %}{{ tr('Log in') }}{% endblock %}
 {% block content %}
-<h1>Log in</h1>
+<h1>{{ tr('Log in') }}</h1>
 <form class="card stack narrow" method="post" action="{{ url_for('auth.login') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="next" value="{{ next_url }}">
-  <label for="email">Email</label>
+  <label for="email">{{ tr('Email') }}</label>
   <input id="email" name="email" type="email" value="{{ form.get('email', '') }}" required autocomplete="username">
-  <label for="password">Password</label>
+  <label for="password">{{ tr('Password') }}</label>
   <input id="password" name="password" type="password" required autocomplete="current-password">
-  <button type="submit">Log in</button>
-  <p>No account? <a href="{{ url_for('auth.register', next=next_url) }}">Sign up</a></p>
+  <button type="submit">{{ tr('Log in') }}</button>
+  <p>{{ tr('No account?') }} <a href="{{ url_for('auth.register', next=next_url) }}">{{ tr('Sign up') }}</a></p>
 </form>
 {% endblock %}
