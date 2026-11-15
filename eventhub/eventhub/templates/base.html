@@ -10,7 +10,7 @@
 <body>
 <header class="site-header">
   <a class="brand" href="{{ url_for('catalog.event_list') }}">EventHub</a>
-  <nav class="nav" aria-label="Main">
+  <nav class="nav" aria-label="{{ tr('Main') }}">
     <a href="{{ url_for('catalog.event_list') }}">{{ tr('Events') }}</a>
     {% if current_user %}
       <a href="{{ url_for('purchase.order_history') }}">{{ tr('My orders') }}</a>

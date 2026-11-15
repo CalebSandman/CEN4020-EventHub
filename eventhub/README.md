@@ -31,6 +31,9 @@ operations team. The scan uses each order's stored rate, discount, quantity,
 currency precision, and base price; it does not contact a payment service.
 Buyers can choose English or Spanish in the header. Locale changes affect display
 only and persist in the session through login.
+Set `EVENTHUB_DEFAULT_LOCALE=es_ES` to serve Spanish to visitors who have not
+chosen a language; the default is `en_US`. Visitors can switch either way in the
+header. Unsupported configured values fall back to English.
 
 Backup and restore guidance is in `docs/part6-backup-recovery.md`. No production
 backup schedule or owner is configured in this repository.

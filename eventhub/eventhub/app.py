@@ -24,6 +24,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         RATE_SEED_PATH=str(ROOT / "data" / "exchange_rates.json"),
         CSRF_ENABLED=True,
         SESSION_LIFETIME_MINUTES=30,  # placeholder: see docs/open-questions.md
+        DEFAULT_LOCALE=os.environ.get("EVENTHUB_DEFAULT_LOCALE", "en_US"),
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("EVENTHUB_COOKIE_SECURE") == "1",

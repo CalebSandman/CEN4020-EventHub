@@ -33,4 +33,6 @@ def session_currency(conn) -> str:
 
 
 def session_locale() -> str:
-    return localization.normalize_locale(session.get(LOCALE_KEY))
+    return localization.normalize_locale(
+        session.get(LOCALE_KEY, current_app.config["DEFAULT_LOCALE"])
+    )
