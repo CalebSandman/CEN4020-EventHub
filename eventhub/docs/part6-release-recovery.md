@@ -20,3 +20,10 @@ not a claim that a rollback has been automated or rehearsed here.
 
 Release-artifact storage, traffic switching, on-call ownership, and rehearsed
 rollback are deployment responsibilities still outside this local project.
+Use `python manage.py backup-db PATH` before a local rollback drill and
+`python manage.py verify-backup PATH` after copying the snapshot to staging.
+Run `python scripts/drill_rollback.py PRIOR_RELEASE_DIR BACKUP_DB` to boot a
+retained release against a temporary copy of the verified backup and check the
+event list and JPY price. Record the release hash, backup timestamp, result,
+and elapsed time. A local drill does not prove the production traffic switch
+works.

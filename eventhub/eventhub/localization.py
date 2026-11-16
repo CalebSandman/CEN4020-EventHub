@@ -4,6 +4,7 @@ Amounts enter as integer currency minor units. This module never converts rates
 or changes stored values. Add a locale by registering its resource and patterns.
 """
 import json
+import re
 from datetime import datetime
 from decimal import Decimal
 from functools import lru_cache
@@ -13,6 +14,25 @@ RESOURCES = Path(__file__).with_name("locales")
 LOCALES = {"en_US": "English", "es_ES": "Español"}
 DATE_PATTERNS = {"en_US": "%m/%d/%Y %I:%M %p", "es_ES": "%d/%m/%Y %H:%M"}
 SYMBOLS = {"USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "CAD": "CA$", "MXN": "MX$", "KWD": "KD"}
+
+# Numeric service errors keep their English source text and audit codes. Only
+# the rendered message is translated, so callers do not depend on a locale.
+_SPANISH_PATTERNS = (
+    (re.compile(r"Name must be at most (\d+) characters\."),
+     "El nombre debe tener como máximo {0} caracteres."),
+    (re.compile(r"Password must be at least (\d+) characters\."),
+     "La contraseña debe tener al menos {0} caracteres."),
+    (re.compile(r"Password must be at most (\d+) characters\."),
+     "La contraseña debe tener como máximo {0} caracteres."),
+    (re.compile(r"You can buy at most (\d+) tickets per order\."),
+     "Puede comprar como máximo {0} entradas por pedido."),
+    (re.compile(r"Only (\d+) ticket\(s\) remain for this event\."),
+     "Solo quedan {0} entradas para este evento."),
+    (re.compile(r"Tickets became unavailable\. Only (\d+) ticket\(s\) remain\."),
+     "Las entradas dejaron de estar disponibles. Solo quedan {0}."),
+    (re.compile(r"At most (\d+) decimal places\."),
+     "Como máximo {0} decimales."),
+)
 
 
 def normalize_locale(value):
@@ -31,9 +51,17 @@ def _messages(locale):
 
 def translate(message, locale="en_US"):
     """English source text is the key; absent translations fall back to it."""
+    locale = normalize_locale(locale)
     if locale == "en_US":
         return message
-    return _messages(normalize_locale(locale)).get(message, message)
+    translated = _messages(locale).get(message)
+    if translated is not None:
+        return translated
+    for pattern, template in _SPANISH_PATTERNS:
+        match = pattern.fullmatch(str(message))
+        if match:
+            return template.format(*match.groups())
+    return message
 
 
 def format_date(value, locale="en_US"):

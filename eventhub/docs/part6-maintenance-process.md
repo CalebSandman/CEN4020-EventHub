@@ -58,7 +58,9 @@ log. `python manage.py scan-alerts` is a scheduler integration point:
 it prints counts and returns exit code 1 while alerts remain open. Tests inject
 a ¥45 stored total for a ¥4,500 order, prove one alert is created and deduplicated,
 and prove a legitimate student discount does not alert. No real notification is
-sent. Operations must arrange a schedule and route nonzero exits to a human.
+sent in the original Part 6 implementation. Part 7 adds a configurable HTTPS
+webhook delivery path with persistent delivery state and retries. Operations
+must still provision the endpoint, schedule scans, and identify a recipient.
 
 **Localization:** The header language selector stores `en_US` or `es_ES` in the
 session, retaining the choice through login. English remains the default.
@@ -73,7 +75,8 @@ formats, and preservation of the JPY order total after switching language.
 **Backups:** `part6-backup-recovery.md` identifies the protected SQLite data,
 safe online backup API, integrity checks, staging restore drill, and off-host
 protection. No backup job was installed. A production owner, schedule, and
-recovery objectives remain to be assigned by the team by Friday.
+recovery objectives remain to be assigned by the team by Friday. Part 7 adds
+tested `backup-db` and `verify-backup` CLI commands, but no production job.
 
 **Release recovery:** `part6-release-recovery.md` records the rollback-first
 procedure and the need to keep runnable prior releases. This repository does

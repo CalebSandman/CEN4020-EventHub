@@ -6,14 +6,18 @@
     python manage.py set-tickets EVENT_ID AVAILABLE [CAPACITY]    # change one event's tickets
     python manage.py reset-sales [--yes]    # delete orders+audit log, restore all tickets; keeps users/rates
     python manage.py reset-all   [--yes]    # delete the whole database and rebuild from data files
+    python manage.py scan-alerts             # reconcile and notify pending alerts if webhook configured
+    python manage.py backup-db DESTINATION   # create a verified, new SQLite backup
+    python manage.py verify-backup PATH      # read-only integrity and table-count check
 """
 from __future__ import annotations
 
 import getpass
 import os
+import sqlite3
 import sys
 
-from eventhub import alerts, database, identity, maintenance
+from eventhub import alerts, database, identity, maintenance, recovery
 
 # The CLI never serves requests, so it does not need a real session key.
 os.environ.setdefault("EVENTHUB_SECRET_KEY", "cli-only-not-used-for-sessions")
@@ -34,6 +38,24 @@ def main(argv) -> int:
         print(USAGE)
         return 2
     cmd = args[0]
+
+    if cmd in ("backup-db", "verify-backup"):
+        if len(args) != 2:
+            print(USAGE)
+            return 2
+        try:
+            if cmd == "backup-db":
+                source = os.environ.get("EVENTHUB_DB", str(ROOT / "instance" / "eventhub.db"))
+                counts = recovery.backup_database(source, args[1])
+                print("Verified backup created:", args[1])
+            else:
+                counts = recovery.verify_backup(args[1])
+                print("Backup verified:", args[1])
+            print("Table rows:", counts)
+            return 0
+        except (ValueError, OSError, sqlite3.DatabaseError) as exc:
+            print("Backup error:", exc)
+            return 1
 
     if cmd == "reset-all":
         path = os.environ.get("EVENTHUB_DB", str(ROOT / "instance" / "eventhub.db"))
@@ -59,8 +81,15 @@ def main(argv) -> int:
         elif cmd == "scan-alerts":
             found = alerts.scan_orders(conn)
             count = conn.execute("SELECT COUNT(*) FROM purchase_alerts WHERE acknowledged_at IS NULL").fetchone()[0]
-            print(f"New alerts: {found}; open alerts: {count}. Review /admin/alerts.")
-            return 1 if count else 0
+            webhook = os.environ.get("EVENTHUB_ALERT_WEBHOOK_URL")
+            sent = failed = 0
+            if webhook:
+                sent, failed = alerts.notify_pending(conn, webhook)
+            print(f"New alerts: {found}; open alerts: {count}; notifications sent: {sent}; "
+                  f"failed: {failed}. Review /admin/alerts.")
+            if count and not webhook:
+                print("EVENTHUB_ALERT_WEBHOOK_URL is not configured; no human notification was sent.")
+            return 1 if count or failed else 0
         elif cmd == "set-tickets" and len(args) in (3, 4):
             maintenance.set_tickets(conn, int(args[1]), int(args[2]),
                                     int(args[3]) if len(args) == 4 else None)
@@ -79,7 +108,10 @@ def main(argv) -> int:
     except (identity.IdentityError, maintenance.MaintenanceError) as exc:
         print("Error:", getattr(exc, "message", None) or exc)
         return 1
-    except ValueError:
+    except ValueError as exc:
+        if cmd == "scan-alerts":
+            print("Notification configuration error:", exc)
+            return 1
         print("Error: ids and ticket counts must be whole numbers.")
         return 1
     finally:

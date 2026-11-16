@@ -59,6 +59,31 @@ localization system, so some longer or dynamic messages can still appear in
 English. The Part 7 top-level menu requirement is fully covered. Event names,
 artist names, and venue names are user/content data and are not translated.
 
+## Follow-up corrections after the coverage audit
+
+The coverage audit found parameterized registration, purchase, and rate-edit
+errors that were still rendered in English, plus a fixed English welcome flash.
+The translator now recognizes bounded numeric message patterns at presentation
+time and includes the welcome message in the Spanish resource. Service error
+codes, audit records, and English behavior remain unchanged.
+
+Call 6 also requested a human-facing alert and recoverable backups. The alert
+scan now sends pending alert JSON to an operator-configured HTTPS webhook. A
+successful delivery records `notified_at`; a failure remains pending for retry.
+The alert ID is stable so the receiving service can deduplicate at-least-once
+delivery. `backup-db` creates a new online SQLite copy and checks its integrity
+and key table counts; `verify-backup` repeats that check without modifying the
+copy. The CLI refuses to overwrite an existing backup. Both paths have focused
+tests, including migration of existing alert tables.
+
+The repository cannot create a working email address, select a real backup
+owner, install a production scheduler, or switch production traffic without
+deployment access. The webhook URL and backup storage must be supplied by the
+operator. The rollback runbook now names a local compatibility drill, but a
+production rollback rehearsal still requires the deployed environment.
+Deployment steps and ownership fields are listed in
+`docs/part7-operations-setup.md`.
+
 ## Verification
 
 See `docs/part7-test-results.md` for the command and observed full-suite result.

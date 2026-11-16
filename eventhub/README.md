@@ -24,10 +24,15 @@ the C4 component model in `docs/architecture/workspace.dsl`.
     python manage.py reset-sales                      # delete orders + audit log, restore all tickets (keeps users, rates)
     python manage.py reset-all                        # delete the whole database, rebuild from data files
     python manage.py scan-alerts                     # reconcile stored purchases; exit 1 if alerts need review
+    python manage.py backup-db PATH                  # verified online SQLite backup; refuses overwrite
+    python manage.py verify-backup PATH              # read-only integrity and table-count check
 
 Administrators can review suspicious totals at `/admin/alerts`. Run `scan-alerts`
 periodically with an external scheduler and route its nonzero exit status to the
-operations team. The scan uses each order's stored rate, discount, quantity,
+operations team. Set `EVENTHUB_ALERT_WEBHOOK_URL` to an HTTPS notification relay
+that routes JSON purchase alerts to a human; successful deliveries are marked in
+SQLite and failed deliveries are retried on the next scan. The scan uses each
+order's stored rate, discount, quantity,
 currency precision, and base price; it does not contact a payment service.
 Buyers can choose English or Spanish in the header. Locale changes affect display
 only and persist in the session through login.
@@ -36,7 +41,8 @@ chosen a language; the default is `en_US`. Visitors can switch either way in the
 header. Unsupported configured values fall back to English.
 
 Backup and restore guidance is in `docs/part6-backup-recovery.md`. No production
-backup schedule or owner is configured in this repository.
+backup schedule or owner is configured in this repository. See
+`docs/part7-operations-setup.md` for the deployment steps that remain.
 
 ## Unit tests
     Located in `tests` folder

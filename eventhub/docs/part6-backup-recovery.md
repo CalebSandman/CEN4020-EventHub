@@ -5,14 +5,19 @@ orders, purchase audit rows, rate-change audit rows, and purchase alerts in SQLi
 (`instance/eventhub.db` by default, or `EVENTHUB_DB`). The event and initial rate
 JSON files are seeds only. They cannot reconstruct accounts, sales, current rates,
 or audit history. There was no backup job or restore procedure in the repository
-before Part 6. Part 6 has not installed a production backup service.
+before Part 6. Part 7 adds local backup commands, but no production backup
+schedule or owner has been configured.
 
 ## Safe backup
 
 The production operations owner should schedule an online SQLite backup using
 `sqlite3.Connection.backup()` to a new dated file on separate storage. This API
 produces a transactionally consistent snapshot even when EventHub uses WAL mode.
-For example, after setting `EVENTHUB_DB` and choosing a protected destination:
+Set `EVENTHUB_DB` to the source database and run `python manage.py backup-db PATH`
+with a new, dated destination on separate storage. The command refuses to
+overwrite a file, uses SQLite's online backup API, and verifies integrity and
+essential table counts. Run `python manage.py verify-backup PATH` independently
+during a restore drill. The equivalent Python API is:
 
 ```python
 import os, sqlite3

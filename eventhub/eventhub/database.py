@@ -93,7 +93,8 @@ CREATE TABLE IF NOT EXISTS purchase_alerts (
     actual_minor INTEGER NOT NULL,
     currency TEXT NOT NULL,
     reason TEXT NOT NULL,
-    acknowledged_at TEXT
+    acknowledged_at TEXT,
+    notified_at TEXT
 );
 """
 
@@ -144,6 +145,9 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE orders ADD COLUMN base_price_cents INTEGER")
         conn.execute("UPDATE orders SET base_price_cents = "
                      "(SELECT base_price_cents FROM events WHERE events.id = orders.event_id)")
+    alert_cols = {r["name"] for r in conn.execute("PRAGMA table_info(purchase_alerts)")}
+    if "notified_at" not in alert_cols:
+        conn.execute("ALTER TABLE purchase_alerts ADD COLUMN notified_at TEXT")
 
 
 @contextmanager
